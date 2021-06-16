@@ -1,0 +1,24 @@
+#!/bin/bash
+#SBATCH --qos=normal            # Quality of Service
+#SBATCH --job-name=Velocyto     # Job Name
+#SBATCH --nodes=8               # Number of Nodes
+#SBATCH --ntasks-per-node=2     # Number of tasks (MPI processes)
+#SBATCH --cpus-per-task=4       # Number of threads per task (OMP threads)
+
+export CONDA_ENVS_PATH=/lustre/project/wdeng7/deep/conda-envs
+unset PYTHONPATH
+source activate my_root
+
+# RUN THE FOLLOWING UNIX (CLI) COMMAND SEPARATELY BEFORE RUNNING THE VELOCYTO SCRIPT:
+# samtools sort -t CB -O BAM -o cellsorted_possorted_genome_bam.bam possorted_genome_bam.bam
+# Essentially, you are 'cell' sorting (by CB) the 'position'-sorted (possorted) bam file (CELLRANGER/STAR output), which is usually done in background by velocyto, but it fails when done on the HPC.
+# Bypass is to run it separately, specify the location, and velocyto will find it on the go.
+
+velocyto run |
+-b /lustre/project/wdeng7/deep/CellRangerData/Repl2/LglKD_FC/outs/filtered_feature_bc_matrix/barcodes.tsv.gz |
+-o /lustre/project/wdeng7/deep/CellRangerData/Repl2/LglKD_FC/outs/velocyto/ |
+-m /lustre/project/wdeng7/deep/dm6/dm6_rmsk.gtf |
+/lustre/project/wdeng7/deep/CellRangerData/Repl2/LglKD_FC/outs/possorted_genome_bam.bam |
+/lustre/project/wdeng7/deep/dm6/genes/Drosophila_melanogaster.BDGP6.28.100.chr_filtered.GAL4.EGFP.gtf
+
+# THIS WILL TAKE A LONG TIME TO FINISH.
